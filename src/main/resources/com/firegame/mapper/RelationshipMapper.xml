@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.firgame.mapper.RelationshipMapper">
+	<select id="selectUserListbyUserA" parameterType="java.lang.String"
+		resultType="po.User">
+		SELECT u.* from relationship r LEFT join `user` u
+		on r.userB=u.userid
+		where r.userA=#{userid}
+		UNION
+		SELECT u.* from relationship r LEFT join `user` u
+		on r.userA=u.userid
+		where r.userB=#{userid}
+	</select>
+	<insert id="insert" parameterType="po.Relationship">
+		insert into
+		relationship (userA,userB)
+		values (#{userA},#{userB})
+	</insert>
+	<select id="find" parameterType="map"
+		resultType="po.Relationship">
+		select * from relationship
+		<where>
+		<if test="userA!=null">and userA=#{userA} </if>
+		 <if test="userB!=null">and	userB=#{userB}</if>
+		</where>
+	</select>
+	<delete id="deleteRelationshipByAB" parameterType="map">
+		delete from
+		relationship
+		where userA=#{userA} and userB=#{userB}
+	</delete>
+</mapper>

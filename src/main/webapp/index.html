@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<title></title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="css/bootstrap.css" rel="stylesheet" />
+<script src="js/jquery-2.1.4.min.js"></script>
+<script src="js/ai.js">
+	
+</script>
+<style>
+body {
+	background-color:black ;
+}
+
+
+
+#huabu {
+    width: 1050px;
+  //  padding-top: 50px;
+    margin: auto;
+    background-color: white;
+    display: none;
+}
+
+
+.list-group[tag=choose] {
+	margin: auto;
+	width: 100%;
+}
+
+.choose1 {
+	text-align: right;
+	padding-right: 30px;
+}
+
+.glyphicon.glyphicon-hand-right {
+	float: left;
+}
+.choosediv {
+    width: 300px;
+    margin: auto;
+        margin-top: auto;
+        margin-left: auto;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: -150px;
+    margin-top: -120px;
+    border: white solid 1px;
+}
+
+</style>
+</head>
+
+<body>
+	<div class="choosediv">
+		<h1 style="color: white;text-align: center;">五子棋对战</h1>
+		<ul class="list-group" tag="choose" >
+			<li class="list-group-item" style="background-color: blue;color: white;">
+
+				<div class="choose1" >
+					<span class="glyphicon glyphicon-hand-right"></span> 电脑先攻
+				</div>
+			</li>
+			<li class="list-group-item" style="background-color: red;color: white;">
+				<div class="choose1">玩家先攻</div>
+			</li>
+		</ul>
+	</div>
+
+	<div id="huabu">
+	<canvas id="qipan" width="1050" height="1050" style="margin-top:50px;margin:auto"></canvas>
+    </div>
+</body>
+
+</html>
+<script>
+	$('.list-group-item').hover(function() {
+		// over
+		$('.list-group-item').find('span').remove();
+		var shou = '<span class="glyphicon glyphicon-hand-right"></span>'
+		$(this).html(shou + $(this).html());
+	}, function() {
+		// out
+	});
+</script>
+<script>
+	/* function build() {
+		for (var i = 0; i < maxx; ++i)
+			for (var j = 0; j < maxy; ++j)
+				$('#qipan').append(
+						"<button x='" + i + "' y='" + j + "'></button>");
+	} */
+    var qipan;
+    var cxt;
+    function build() {
+        
+        qipan = document.getElementById("qipan");
+        cxt = qipan.getContext('2d');
+        var img = new Image();
+        img.width=1050;
+        img.height = 1050;
+        img.src="timg.jpg";
+        cxt.drawImage(img, 0, 0,1050,1050);
+
+		cxt.moveTo(0, 0);
+		cxt.lineTo(0,1050);
+		cxt.lineTo(1050,1050);
+		cxt.lineTo(1050, 0);
+		cxt.lineTo(0,0);
+		cxt.stroke();
+        
+		cxt.beginPath();
+		cxt.moveTo(50, 50);
+		cxt.lineTo(50, 1000);
+		cxt.lineTo(1000, 1000);
+		cxt.lineTo(1000, 50);
+		cxt.lineTo(50, 50);
+		cxt.stroke();
+
+		drawPointByAi = function (x, y) {
+		    cxt.beginPath();
+		    cxt.arc(x*50+50, y*50+50, 20, 0, 2 * Math.PI, true);
+		    cxt.fillStyle = "black";
+		    cxt.fill();
+		    cxt.stroke();
+		}
+
+		var drawLine = function (x1, y1, x2, y2) {
+		    cxt.beginPath();
+		    cxt.moveTo(x1, y1);
+		    cxt.lineTo(x2, y2);
+		    cxt.stroke();
+		}
+		for (var y = 100; y < 1000; y += 50)
+		    drawLine(50, y, 1000, y);
+		for (var  x= 100; x < 1000; x += 50)
+		    drawLine(x, 50, x, 1000);
+
+		qipan.onclick = function (e) {
+		    if (trun != 1)
+		        return;
+		    var move = [[0, 0], [50, 0], [50, 50], [0, 50]];
+		    var x = Math.floor(e.offsetX / 50) * 50, y = Math.floor(e.offsetY / 50) * 50;
+		//    alert(x + " " + y);
+		    for (var i = 0; i < 4; ++i) {
+		        var xx = x + move[i][0], yy = y + move[i][1];
+		        if (((e.offsetX - xx) * (e.offsetX - xx) + (e.offsetY - yy) * (e.offsetY - yy)) <= 400) {
+		            var xindex = xx / 50 - 1, yindex = yy / 50 - 1;
+		            if (chessBoard[xindex][yindex] != 0) return;
+		            cxt.beginPath();
+		            cxt.arc(xx, yy, 20, 0, 2 * Math.PI, true);
+		            cxt.fillStyle = "#cccccc";
+		            cxt.fill();
+		            cxt.stroke();
+					
+					chessBoard[xindex][yindex]=1;
+		            for (var k = 0; k < count; ++k)
+		                if (wins[xindex][yindex][k] == true) {
+		                    meWin1[k]++;
+		                    aiWin1[k] = wincount + 1;
+
+		                    if (meWin1[k] == wincount) {
+		                        alert('ypu wins');
+		                        return;
+		                    }
+		                }
+		            turn = 2;
+		            aiRun(drawPointByAi);
+
+		            return;
+		        }
+		    }
+
+		}
+    }
+    function meDo() {
+
+
+    }
+    
+	function aiFirst() {
+		 cxt.beginPath();
+		    cxt.arc(10*50+50, 10*50+50, 20, 0, 2 * Math.PI, true);
+		    cxt.fillStyle = "black";
+		    cxt.fill();
+		    cxt.stroke();
+		    turn=1;
+		    chessBoard[10][10]=2;
+		for (var k = 0; k < count; ++k) {
+			if (wins[10][10][k] == true) {
+				aiWin1[k]++;
+				meWin1[k] = wincount + 1;
+			}
+		}
+	}
+	//  aiFirst();
+	trun = 1;
+	$('#qipan').on('click', 'button', function() {
+		if (trun != 1)
+			return;
+
+		var x = $(this).attr('x');
+		var y = $(this).attr('y');
+		if (chessBoard[x][y] != 0)
+			return;
+		meRender(x, y);
+		for (var k = 0; k < count; ++k)
+			if (wins[x][y][k] == true) {
+				meWin1[k]++;
+				aiWin1[k] = wincount + 1;
+				
+				if (meWin1[k] == wincount) {
+					alert('ypu wins');
+					return;
+				}
+			}
+		turn = 2;
+		aiRun();
+
+	})
+	function meRender(mi, mj) {
+		chessBoard[mi][mj] = 1;
+		$("#qipan").find('button[x=' + mi + '][y=' + mj + ']').css(
+				'background-color', 'red');
+	}
+	$('ul[tag=choose]>li').click(function(e) {
+		e.preventDefault();
+		build();
+
+		if ($(this).index() == 0) {
+			aiFirst();
+
+		}
+		//  build();
+		$(".choosediv").remove();
+		$("#huabu").show();
+		
+
+	});
+</script>
