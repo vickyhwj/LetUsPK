@@ -1,0 +1,285 @@
+package com.websocket;
+
+import javax.websocket.*;
+import javax.websocket.server.ServerEndpoint;
+
+import mapper.GameStateMapper;
+import mapper.RelationshipMapper;
+import mapper.UserMapper;
+import net.sf.json.JSONObject;
+
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.web.context.ContextLoader;
+
+import com.google.gson.Gson;
+
+import po.GameState;
+import po.GameStateToString;
+import po.User;
+import po.XiangqiGameState;
+import po.XiangqiMove;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
+
+
+/**
+ * @ServerEndpoint 注解是一个类层次的注解，它的功能主要是将目前的类定义成一个websocket服务器端,
+ * 注解的值将被用于监听用户连接的终端访问URL地址,客户端可以通过这个URL来连接到WebSocket服务器端
+ * @author uptop
+ */
+@ServerEndpoint("/websocketxiangqi")
+public class WebSocketXiangqi extends AbstractWebsocket{
+	RelationshipMapper relationshipMapper=(RelationshipMapper) ContextLoader.getCurrentWebApplicationContext().getBean("relationshipMapper"); 
+	UserMapper userMapper= (UserMapper) ContextLoader.getCurrentWebApplicationContext().getBean("userMapper");
+	GameStateMapper gameStateMapper=(GameStateMapper) ContextLoader.getCurrentWebApplicationContext().getBean("gameStateMapper");
+	MongoTemplate mongoTemplate=(MongoTemplate) ContextLoader.getCurrentWebApplicationContext().getBean("mongoTemplate");
+	String username,gameMapKey;
+	public String getGameMapKey() {
+		return gameMapKey;
+	}
+
+	public void setGameMapKey(String gameMapKey) {
+		this.gameMapKey = gameMapKey;
+	}
+
+
+	
+
+    //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。若要实现服务端与单一客户端通信的话，可以使用Map来存放，其中Key可以为用户标识
+    public static ConcurrentHashMap<String,WebSocketXiangqi> socketMap=new ConcurrentHashMap<String, WebSocketXiangqi>();
+    public static ConcurrentHashMap<String,XiangqiGameState> gameMap=new ConcurrentHashMap<String, XiangqiGameState>();
+    
+    //与某个客户端的连接会话，需要通过它来给客户端发送数据
+    private Session session;
+
+    public Session getSession() {
+		return session;
+	}
+
+	public void setSession(Session session) {
+		this.session = session;
+	}
+
+	/**
+     * 连接建立成功调用的方法
+     *
+     * @param session 可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
+     */
+    @OnOpen
+    public void onOpen(Session session) {
+        this.session = session;
+        Map<String,List<String>> map=session.getRequestParameterMap();
+        List<String> list=map.get("username");
+        this.username=list.get(0);
+        
+      
+        
+        socketMap.put(this.username, this);
+        ArrayList<User> userList=(ArrayList<User>) relationshipMapper.selectUserListbyUserA(username);
+        ArrayList<String> friendOnlineList=new ArrayList<String>();
+        for(User user :userList){
+        	if(socketMap.containsKey(user.getUserid())){
+        		friendOnlineList.add(user.getUserid());
+        	}
+        }
+        JSONObject result = new JSONObject();
+		result.element("type", 2);
+		result.element("list", friendOnlineList);
+		System.out.print(result.toString());
+        try {
+			sendMessage(result.toString());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        //通知朋友
+        JSONObject comResult = new JSONObject();
+        comResult.element("type", 1);
+        comResult.element("from", username);
+        for(User user :userList){
+        	if(socketMap.containsKey(user.getUserid())){
+        		WebSocketXiangqi socketTest=socketMap.get(user.getUserid());
+        		socketTest.sendMsg(comResult.toString());
+        	}
+        }
+        
+    
+       Criteria criteria=new Criteria();
+       
+        
+        
+        XiangqiGameState gameState= (XiangqiGameState)mongoTemplate.findOne(new Query(new Criteria().orOperator(Criteria.where("A").is(username),Criteria.where("B").is(username))), XiangqiGameState.class);
+        if(gameState!=null){
+        	
+        	JSONObject jsonObject=new JSONObject();
+        	jsonObject.element("turn", gameState.getTurn());
+        	jsonObject.element("state", gameState.getState());
+        	jsonObject.element("type", 8);
+        	jsonObject.element("A", gameState.getA());
+        	jsonObject.element("B", gameState.getB());
+        	String A= jsonObject.getString("A");
+        	String B=jsonObject.getString("B");
+        	String key= A.compareTo(B)<0? A+" "+B:B+" "+A;
+        	gameMapKey=key;
+        	gameMap.put(key, gameState);
+        	try{
+        		WebSocketXiangqi w1=socketMap.get(A);
+        		w1.sendMessage(jsonObject.toString());
+        	}catch(Exception e){
+        		e.printStackTrace();
+        	}
+        	try{
+        		WebSocketXiangqi w1=socketMap.get(B);
+        		w1.sendMessage(jsonObject.toString());
+        	}catch(Exception e){
+        		e.printStackTrace();
+        	}
+        	
+        	
+        }
+        System.out.println("有新连接加入！当前在线人数为" + socketMap.size());
+        System.out.println("有新连接加入！当前gameState" + gameMap.size());
+       
+    }
+
+    /**
+     * 连接关闭调用的方法
+     */
+    @OnClose
+    public void onClose() {
+    	 JSONObject comResult = new JSONObject();
+         comResult.element("type", 3);
+         comResult.element("from", username);
+        ArrayList<User> userList=(ArrayList<User>) relationshipMapper.selectUserListbyUserA(username);
+        for(User user:userList){
+        	try{
+        		WebSocketXiangqi socketTest=socketMap.get(user.getUserid());
+        		if(socketTest!=null&&socketTest.getSession().isOpen())
+        			socketTest.sendMessage(comResult.toString());
+        	}catch(Exception e){
+        		e.printStackTrace();
+        	}
+        }
+    	out();
+        socketMap.remove(username);
+        System.out.println("有一连接关闭！当前在线人数为" + socketMap.size());
+        System.out.println("有新连接加入！当前gameState" + gameMap.size());
+    }
+
+    /**
+     * 收到客户端消息后调用的方法
+     *
+     * @param message 客户端发送过来的消息
+     * @param session 可选的参数
+     * @throws ClassNotFoundException 
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
+     */
+    @OnMessage
+    public void onMessage(String message, Session session) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    	JSONObject jsonObject=JSONObject.fromObject(message);
+    	int type=jsonObject.getInt("type");
+    	//邀请对方
+    	MsgStrategy msgStrategy= (MsgStrategy) Class.forName("com.websocket.XiangqiMsg"+type).newInstance();
+    	msgStrategy.dealMsg(jsonObject, username, gameMapKey);
+        System.out.println("来自客户端的消息:" + message);
+    	System.out.println(Thread.currentThread().getName());
+
+        //群发消息
+      /*  for (WebSocketTest item : webSocketSet) {
+            try {
+                item.sendMessage(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+                continue;
+            }
+        }*/
+    }
+
+    /**
+     * 发生错误时调用
+     *
+     * @param session
+     * @param error
+     */
+    @OnError
+    public void onError(Session session, Throwable error) {
+        System.out.println("发生错误");
+        out();
+        error.printStackTrace();
+    }
+    public void out(){
+    	
+    	if(gameMapKey==null) return; 
+    	XiangqiGameState gameState=gameMap.get(gameMapKey);
+    	if(gameState==null) return;
+    	synchronized (gameState) {
+			
+    		if(gameMap.get(gameMapKey)==null)return;
+	    	if(gameState==null) return;
+	    	mongoTemplate.upsert(new Query(new Criteria().orOperator(Criteria.where("A").is(username),Criteria.where("B").is(username))), new Update().set("A", gameState.getA()).set("B", gameState.getB()).set("state", gameState.getState()).set("turn", gameState.getTurn()).set("playRecord", gameState.getPlayRecord()), gameState.getClass());
+	    //	mongoTemplate.insert(gameState);
+	    	
+	    	gameMap.remove(gameMapKey);
+	    	if(gameState.getA().equals(username)){
+	    		try{
+	    			boolean isOpen=socketMap.get(gameState.getB()).getSession().isOpen();
+	    			if(isOpen) socketMap.get(gameState.getB()).getSession().close();
+	    			socketMap.remove(gameState.getB());
+	    		}catch(Exception e){
+	    			e.printStackTrace();
+	    		}
+	    	}
+	    	else{
+	    		try{
+	    			boolean isOpen=socketMap.get(gameState.getA()).getSession().isOpen();
+	    			if(isOpen) socketMap.get(gameState.getA()).getSession().close();
+	    			socketMap.remove(gameState.getA());
+	    		}catch(Exception e){
+	    			e.printStackTrace();
+	    		}
+	    	}
+    	}
+    	
+    }
+    /**
+     * 这个方法与上面几个方法不一样。没有用注解，是根据自己需要添加的方法。
+     *
+     * @param message
+     * @throws IOException
+     */
+    public void sendMessage(String message) throws IOException {
+        this.session.getBasicRemote().sendText(message);
+
+    }
+
+    
+   
+    
+
+
+    public void sendMsg(String msg) {
+    	Set<Entry<String, WebSocketXiangqi>> set=socketMap.entrySet();
+        for (Entry<String, WebSocketXiangqi> entry:set){
+        	try {
+				entry.getValue().sendMessage(msg);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+    }
+
+
+}

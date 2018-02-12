@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mapper.MessageMapper">
+	<insert id="insertMessage" parameterType="po.Message">
+		<selectKey resultType="java.lang.Integer" keyProperty="msgId" order="AFTER">
+			select last_insert_id()
+		</selectKey>
+		insert into message(`from`,`to`,content,type,isRead,createDate)
+		values(#{from},#{to},#{content},#{type},#{isRead},#{createDate})
+	</insert>
+	<update id="updataMessage" parameterType="po.Message">
+		UPDATE message
+		set isRead=#{isRead}
+		where msgId=#{msgId}
+		
+	</update>
+</mapper>

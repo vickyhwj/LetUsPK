@@ -1,0 +1,115 @@
+package service;
+
+import java.util.ArrayList;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.web.context.ContextLoader;
+
+import com.xiangqiwebsocket.WebSocketTest;
+import com.xiangqiwebsocket.WebSocketXiangqi;
+
+import po.User;
+import po.UserCustom;
+import po.UserVo;
+import po.XiangqiGameState;
+import mapper.GameStateMapper;
+import mapper.RelationshipMapper;
+import mapper.UserMapper;
+
+public class UserService {
+	UserMapper userMapper;
+	GameStateMapper gameStateMapper;
+	
+	public void setGameStateMapper(GameStateMapper gameStateMapper) {
+		this.gameStateMapper = gameStateMapper;
+	}
+
+	public void setUserMapper(UserMapper userMapper) {
+		this.userMapper = userMapper;
+	}
+	
+	public User login(String userid,String password){
+		User user=userMapper.selectUserById(userid);
+		if(user==null||!password.equals(user.getPassword())) return null;
+		return user;
+	}
+
+	public ArrayList<User> selectUserListbyUserid(String userid){
+		UserVo userVo=new UserVo();
+		userVo.setUser(new User());
+		userVo.getUser().setUserid(userid);
+		return (ArrayList<User>) userMapper.selectUserListbyUserVo(userVo);
+	}
+	public ArrayList<User> selectUserListbyUserid_page(String userid,int index,int len){
+		UserVo userVo=new UserVo();
+		userVo.setUser(new User());
+		userVo.getUser().setUserid(userid);
+		userVo.setIndex(index);
+		userVo.setLen(len);
+		return (ArrayList<User>) userMapper.selectUserListbyUserVo(userVo);
+	}
+	public Integer getCountOfUserByUserid(String userid){
+		UserVo userVo=new UserVo();
+		userVo.setUser(new User());
+		userVo.getUser().setUserid(userid);
+		return userMapper.getCountOfUserByUserVo(userVo);
+	}
+	public UserCustom selectUserMessageByUserId(String userId){
+		return userMapper.selectUserMessageByUserId(userId);
+	}
+	public ArrayList<User> selectUserRank(Integer index,Integer len,Boolean desc){
+		UserVo userVo=new UserVo();
+		userVo.setDesc(desc);
+		userVo.setIndex(0);
+		userVo.setLen(len);
+		return (ArrayList<User>) userMapper.selectUserListbyUserVo(userVo);
+	}
+	public boolean register(String username,String password){
+		if(username==null||"".equals(username)) return false;
+		if(password==null||"".equals(password)) return false;
+		User user=new User();
+		user.setUserid(username);
+		user.setPassword(password);
+		try{
+			userMapper.insertUser(user);
+		}catch(Exception e){
+			return false;
+		}
+		return true;
+	}
+	public void removeGameState(String userid){
+		WebSocketTest webSocketTest= WebSocketTest.socketMap.get(userid);
+		String key=webSocketTest.getGameMapKey();
+		webSocketTest.gameMap.remove(key);
+		Integer id=gameStateMapper.selectGameStateIdFromUser(userid);
+		if(id!=null){
+			gameStateMapper.removeUsersGameState(id);
+			gameStateMapper.deleteGameState(id);
+		}
+	}
+	public void removeXiangqiGameState(String userid){
+		WebSocketXiangqi webSocket= WebSocketXiangqi.socketMap.get(userid);
+		String key=webSocket.getGameMapKey();
+		webSocket.gameMap.remove(key);
+		MongoTemplate mongoTemplate=(MongoTemplate) ContextLoader.getCurrentWebApplicationContext().getBean("mongoTemplate");
+		mongoTemplate.remove(new Query(new Criteria().orOperator(Criteria.where("A").is(userid),Criteria.where("B").is(userid))), XiangqiGameState.class,"xiangqiGameState");
+	}
+}	

@@ -1,0 +1,18 @@
+package com.websocket;
+
+import java.util.ArrayList;
+
+import po.XiangqiMove;
+
+public class PlayRecord {
+	private ArrayList<XiangqiMove> list=new ArrayList<XiangqiMove>();
+
+	public ArrayList<XiangqiMove> getList() {
+		return list;
+	}
+
+	public void setList(ArrayList<XiangqiMove> list) {
+		this.list = list;
+	}
+	
+}

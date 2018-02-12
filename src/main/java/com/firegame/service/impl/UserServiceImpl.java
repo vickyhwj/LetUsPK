@@ -10,6 +10,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.ContextLoader;
 
@@ -39,6 +40,7 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
 		map.put("userid", userid);
 		return (ArrayList<User>) userDao.find(map);
 	}
+	@Secured("ROLE_FIND")
 	@Override
 	public ArrayList<User> selectUserListbyUserid_page(String userid,int index,int len,Page<User> page){
 		

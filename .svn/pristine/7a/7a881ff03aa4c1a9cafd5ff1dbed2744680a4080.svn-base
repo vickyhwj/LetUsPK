@@ -1,0 +1,19 @@
+package mapper;
+
+import java.util.List;
+
+import po.GameState;
+import po.GameStateToString;
+import po.Message;
+import po.User;
+import po.UserCustom;
+import po.UserVo;
+
+public interface GameStateMapper {
+	Integer insertGameState(GameStateToString gameStateToString);
+	void updateGameState(GameStateToString gameStateToString);
+	Integer selectGameStateIdFromUser(String userid);
+	GameStateToString selectGameStateById(Integer gameStateId);
+	void deleteGameState(Integer gameStataId);
+	void removeUsersGameState(Integer gameStateId);
+}

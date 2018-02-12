@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -17,16 +18,17 @@ import javax.websocket.server.ServerEndpoint;
 import net.sf.json.JSONObject;
 import po.XiangqiGameState;
 
+import com.websocket.GetHttpSessionConfigurator;
 import com.websocket.WebSocket;
 import com.xiangqiwebsocket.WebSocketXiangqi;
-@ServerEndpoint("/WatchXiangqi")
+@ServerEndpoint(value="/WatchXiangqi",configurator=GetHttpSessionConfigurator.class)
 public class WatchXiangqi implements WebSocket{
 	private Session session;
 	private String gameMapKey;
 	public static ConcurrentHashMap<String, CopyOnWriteArraySet<WatchXiangqi>> watchMap=new ConcurrentHashMap<>();
 	public CopyOnWriteArraySet<WatchXiangqi> set;
 	@OnOpen
-	public void onOpen(Session session) throws Exception {
+	public void onOpen(Session session,EndpointConfig config) throws Exception {
 		// TODO Auto-generated method stub
 		this.session=session;
 		Map<String,List<String>> map= session.getRequestParameterMap();

@@ -1,0 +1,30 @@
+package com.xiangqiwebsocket;
+
+import org.springframework.web.context.ContextLoader;
+
+import com.firegame.dao.UserDao;
+
+import po.XiangqiGameState;
+import po.XiangqiMove;
+import net.sf.json.JSONObject;
+//��һ��
+public class XiangqiMsg9 extends MsgStrategyDecorate{
+
+	public XiangqiMsg9() {
+		super(new XiangqiMsg9A());
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public void dealMsg(JSONObject msg, String username, String gameMapKey) {
+		// TODO Auto-generated method stub
+		
+		super.dealMsg(msg, username, gameMapKey);
+		zhibo();
+	}
+	public void zhibo(){
+		System.out.println("zhibo");
+	}
+	
+	
+}

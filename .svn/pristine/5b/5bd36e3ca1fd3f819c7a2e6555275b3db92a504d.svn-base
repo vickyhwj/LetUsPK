@@ -1,0 +1,20 @@
+package po;
+
+import java.util.Timer;
+
+public abstract  class AbstractGameState<T> {
+	
+	public Timer timer;
+	public  abstract boolean  play(String user,T t);
+	public  abstract  boolean check(String user,T t);
+	public Timer getTimer() {
+		return timer;
+	}
+	public void setTimer(Timer timer) {
+		this.timer = timer;
+	}
+	public void cancelTimer(){
+		if(timer!=null)
+			timer.cancel();
+	}
+}

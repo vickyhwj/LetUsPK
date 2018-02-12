@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.security.auth.login.AppConfigurationEntry;
 
-import mapper.UserMapper;
 import net.sf.json.JSONObject;
 
 import org.junit.Test;
@@ -16,17 +15,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.redis.connection.jedis.JedisUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import cache.JedisPoolUtils;
+import cache.JedisPoolUtils.WorkRunnable;
+
 import com.google.gson.Gson;
 
 import po.User;
 import redis.clients.jedis.Jedis;
-import service.UserService;
 import tool.SerializeUtil;
 
 public class RedisTest {
@@ -36,13 +38,62 @@ public class RedisTest {
 	public void demo1(){
 		ApplicationContext ac=new ClassPathXmlApplicationContext("applicationContext-redis.xml");
 		RedisTemplate<String, Object> redisTemplate=(RedisTemplate<String, Object>) ac.getBean("redisTemplate");
-		redisTemplate.opsForValue().set("name", "liujun");
-		System.out.println(redisTemplate.opsForValue().get("name"));
-		redisTemplate.delete("name");
+		redisTemplate.opsForList().rightPush("vicky", "1");
+		redisTemplate.opsForList().rightPush("vicky", "2");
+		List<Object> list= redisTemplate.opsForList().range("vicky", 0, -1);
+		System.out.println(list);
 		
 		
 	}
 	@Test
+	public void demo2(){
+		ApplicationContext ac=new ClassPathXmlApplicationContext("applicationContext-redis.xml");
+		RedisTemplate<String, Object> redisTemplate=(RedisTemplate<String, Object>) ac.getBean("redisTemplate");
+		HashMap<String, Object> map=new HashMap<>();
+		map.put("name", "jerry");
+		map.put("age", "12");
+		map.put("address", "china");
+		redisTemplate.opsForHash().putAll("jerry", map);
+		
+		
+		
+	}
+	@Test
+	public void demo3(){
+		long start=System.currentTimeMillis();
+		Jedis jedis=new Jedis("192.168.44.128", 6379);
+		for(int i=1;i<=100000;++i)
+			jedis.rpush("vicky",String.valueOf(i) );
+		jedis.close();
+		System.out.println(System.currentTimeMillis()-start);
+	}
+	@Test
+	public void demo4(){
+		ApplicationContext ac=new ClassPathXmlApplicationContext("applicationContext-redis.xml");
+		RedisTemplate<String, Object> redisTemplate=(RedisTemplate<String, Object>) ac.getBean("redisTemplate");
+		long start=System.currentTimeMillis();
+		for(int i=1;i<=100000;++i){
+			redisTemplate.opsForList().rightPush("vicky", String.valueOf(i));
+		}
+		System.out.println(System.currentTimeMillis()-start);		
+	}
+	@Test
+	public void demo5(){
+		
+		long start=System.currentTimeMillis();
+		JedisPoolUtils.work(new WorkRunnable<Void>() {
+			
+			@Override
+			public Void run(Jedis jedis) {
+				for(int i=1;i<=100000;++i)
+					jedis.rpush("vicky",String.valueOf(i) );
+				return null;
+				
+			}
+		});
+		System.out.println(System.currentTimeMillis()-start);		
+	}
+	/*@Test
 	//mysql
 	public void demo2(){
 		ApplicationContext ac=new ClassPathXmlApplicationContext("classpath:app.xml");
@@ -173,5 +224,5 @@ public class RedisTest {
 		for(int i=1;i<=100000;++i)
 			str.append(i);
 		System.out.println(System.currentTimeMillis()-start);
-	}	
+	}	*/
 }

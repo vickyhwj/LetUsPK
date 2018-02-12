@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link href="css/bootstrap.css" rel="stylesheet">
+<style>
+body {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #eee;
+}
+#inputEmail ,#inputPassword{
+    height: 45px;
+}
+
+.form-signin{
+	max-width:300px;
+	margin: auto;
+	
+}
+</style>
+</head>
+<body>
+	<div class="container">
+
+		<form class="form-signin" action="loginByUserid">
+			<h2 class="form-signin-heading">Please sign in</h2>
+			<label for="inputEmail" class="sr-only">Email address</label> <input name="username"
+				type="text" id="inputEmail" class="form-control"
+				placeholder="Username" required="" autofocus=""> <label
+				for="inputPassword" class="sr-only">Password</label> <input name="password"
+				type="password" id="inputPassword" class="form-control"
+				placeholder="Password" required="">
+			<div class="checkbox">
+				<label> <input type="checkbox" value="remember-me">
+					Remember me
+				</label>
+				<a href="index.html" style="float: right;">体验人机对战</a>
+			</div>
+			<button class="btn btn-lg btn-primary btn-block" type="submit">Sign
+				in</button>
+		</form>
+
+	</div>
+</body>
+</html>

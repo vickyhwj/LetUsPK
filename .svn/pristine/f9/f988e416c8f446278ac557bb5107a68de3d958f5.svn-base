@@ -1,0 +1,34 @@
+package aop;
+
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
+
+
+
+//@Aspect
+public class LoggerAOP implements MethodInterceptor{
+	@Override
+	public Object invoke(MethodInvocation arg0) throws Throwable {
+		// TODO Auto-generated method stub
+		
+		
+		return around(arg0);
+	}
+	public Object around(MethodInvocation joinPoint) throws Throwable{
+		long start=System.currentTimeMillis();
+		Object result=joinPoint.proceed();
+		System.out.println("×Ütime:"+(System.currentTimeMillis()-start));
+		return result;
+		
+	}
+	 
+}

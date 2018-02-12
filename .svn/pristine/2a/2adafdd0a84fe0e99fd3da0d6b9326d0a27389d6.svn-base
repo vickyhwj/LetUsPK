@@ -1,0 +1,12 @@
+package com.firegame.service.impl;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import com.firegame.dao.GameStateDao;
+import com.firegame.service.GameStateService;
+@Service("gameStateService")
+public class GameStateServiceImpl extends BaseServiceImpl implements GameStateService{
+	
+}

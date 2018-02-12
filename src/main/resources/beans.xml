@@ -25,6 +25,9 @@
 	
 	<context:component-scan base-package="com.xiangqiwebsocket"/>
 	
+	<context:component-scan base-package="security"/>
+	
+	
 	<!-- 3. 数据源dataSource  C3P0 -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
@@ -83,5 +86,6 @@
 	</aop:config> 
 	<import resource="classpath:applicationContext-mongodb.xml"/>
 	<import resource="classpath:applicationContext-redis.xml"/>
-			
+	<import resource="classpath:spring-security.xml"/>
+	
 </beans>

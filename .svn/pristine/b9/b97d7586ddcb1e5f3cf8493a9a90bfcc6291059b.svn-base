@@ -1,0 +1,43 @@
+package com.websocket;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
+@ServerEndpoint("/wss")
+public class Wss extends AbstractWebsocket{
+
+	@OnOpen
+	public void onOpen(Session session) {
+		// TODO Auto-generated method stub
+		 Map<String,List<String>> map=session.getRequestParameterMap();
+	      List<String> list=map.get("username");
+	      System.out.println(list.get(0));
+	}
+
+	@OnClose
+	public void onClose() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@OnMessage
+	public void onMessage(String message, Session session)
+			throws InstantiationException, IllegalAccessException,
+			ClassNotFoundException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@OnError
+	public void onError(Session session, Throwable error) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

@@ -2,6 +2,7 @@ package com.websocket;
 
 import java.io.IOException;
 
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -12,7 +13,7 @@ import org.apache.commons.logging.impl.AvalonLogger;
 
 public interface WebSocket  {
 	@OnOpen
-	public abstract void onOpen(Session session) throws Exception;
+	public abstract void onOpen(Session session,EndpointConfig config) throws Exception;
 
 	@OnClose
 	public abstract void onClose();

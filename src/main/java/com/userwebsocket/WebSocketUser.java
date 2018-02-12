@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ejb.MessageDriven;
+import javax.servlet.http.HttpSession;
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -22,11 +24,14 @@ import po.Message;
 
 import com.firegame.service.MessageService;
 import com.firegame.service.RelationshipService;
+import com.websocket.GetHttpSessionConfigurator;
 import com.websocket.MsgStrategy;
 import com.websocket.WebSocket;
 import com.xiangqiwebsocket.WebSocketMsg;
 
-@ServerEndpoint("/websocketMsg")
+import exception.MyRuntimeException;
+
+@ServerEndpoint(value="/websocketMsg",configurator=GetHttpSessionConfigurator.class)
 public class WebSocketUser implements WebSocket {
 	MessageService messageService = (MessageService) ContextLoader
 			.getCurrentWebApplicationContext().getBean("messageService");
@@ -38,12 +43,13 @@ public class WebSocketUser implements WebSocket {
 
 	@Override
 	@OnOpen
-	public void onOpen(Session session) throws IOException {
+	public void onOpen(Session session,EndpointConfig config) throws IOException {
 		// TODO Auto-generated method stub
 		this.session = session;
-		Map<String, List<String>> map = session.getRequestParameterMap();
-		List<String> list = map.get("username");
-		this.username = list.get(0);
+		 HttpSession httpSession= (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
+	     this.username=(String) httpSession.getAttribute("userId");
+	      if(username==null)
+	    	  throw new MyRuntimeException(MyRuntimeException.USERNOTEQUAL);
 		WebSocketUser presocket=socketMap.get(this.username);
 		if(presocket!=null) presocket.session.close();
 		socketMap.put(this.username, this);

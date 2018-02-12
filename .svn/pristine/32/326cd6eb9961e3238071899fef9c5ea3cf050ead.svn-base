@@ -1,0 +1,19 @@
+package po;
+
+import java.util.Timer;
+
+import com.xiangqiwebsocket.XiangqiTimer;
+
+public abstract  class AbstractGameState<T> {
+	
+	public Thread timer;
+	public  abstract boolean  play(String user,T t);
+	public  abstract  boolean check(String user,T t);
+	public Thread getTimer() {
+		return timer;
+	}
+	public void setTimer(Thread timer) {
+		this.timer = timer;
+	}
+	
+}

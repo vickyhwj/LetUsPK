@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.firegame.mapper.SecurityMapper">
+	<resultMap type="po.Authority" id="authority">
+		<id property="id" column="id"/>
+		<result property="url" column="url"/>
+		<association property="role" javaType="po.Role">
+			<id property="roleid" column="roleId"/>
+			<result property="rolename" column="roleName"/>
+		</association>
+	</resultMap>
+	<resultMap type="po.UserRoles" id="userRoles">
+		<id property="userid" column="userid"/>
+		<result property="password" column="password"/>
+		<collection property="roles" ofType="po.Role">
+			<id property="roleid" column="roleid"/>
+			<result property="rolename" column="rolename"/>
+		</collection>
+	
+	</resultMap>
+	
+
+	<select id="findAllAuthority" resultMap="authority">
+		select
+			a.id as id,
+			a.url as url,
+			a.roleId as roleId,
+			r.roleName as roleName
+		from
+			authority a
+			join `role` r on
+			a.roleId = r.roleId
+
+	</select>
+	<select id="findUserRolesByUserId" resultMap="userRoles" parameterType="java.lang.String">
+			select
+				u.userid as userid,
+				u.password as password,
+				r.roleId roleid,
+				r.roleName rolename
+			from
+				`user` u
+				join userrole ur on
+				u.userid = ur.userId
+				join `role` r on
+				r.roleId = ur.roleId
+			where u.userid=#{userid} and isrun=1
+		
+	</select>
+<select id="findUserRolesMapByUserId" resultType="map" parameterType="java.lang.String">
+			select
+				u.userid as userid,
+				u.password as password,
+				r.roleId roleid,
+				r.roleName rolename
+			from
+				`user` u
+				join userrole ur on
+				u.userid = ur.userId
+				join `role` r on
+				r.roleId = ur.roleId
+			where u.userid=#{userid} and isrun=1
+		
+	</select>
+
+</mapper>

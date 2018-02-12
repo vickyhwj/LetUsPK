@@ -1,0 +1,27 @@
+[
+    {
+        "goodname": "a1",
+        "checked": false,
+        "count": 1
+    },
+    {
+        "goodname": "a2",
+        "checked": false,
+        "count": 1
+    },
+    {
+        "goodname": "a3",
+        "checked": false,
+        "count": 1
+    },
+    {
+        "goodname": "a4",
+        "checked": false,
+        "count": 1
+    },
+    {
+        "goodname": "a5",
+        "checked": false,
+        "count": 1
+    }
+]

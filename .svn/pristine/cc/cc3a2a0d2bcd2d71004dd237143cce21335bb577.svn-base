@@ -1,0 +1,73 @@
+package com.xiangqiwebsocket;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import net.sf.json.JSONObject;
+
+import com.xiangqiwebsocket.WebSocketXiangqi;
+
+import po.AbstractGameState;
+import po.XiangqiGameState;
+import po.XiangqiMove;
+
+public class XiangqiTimer extends TimerTask{
+	public  static int TIME_SECOND=10000;
+	XiangqiGameState xiangqiGameState;
+	
+
+	public XiangqiTimer(XiangqiGameState gameState) {
+		super();
+		this.xiangqiGameState = gameState;
+	}
+
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		xiangqiGameState=(XiangqiGameState) xiangqiGameState;
+		String turn=xiangqiGameState.getTurn();
+		if(turn.equals(xiangqiGameState.getA()))
+			xiangqiGameState.setTurn(xiangqiGameState.getB());
+		else
+			xiangqiGameState.setTurn(xiangqiGameState.getA());
+		WebSocketXiangqi w1=WebSocketXiangqi.socketMap.get(xiangqiGameState.getB());
+		WebSocketXiangqi w2=WebSocketXiangqi.socketMap.get(xiangqiGameState.getA());
+		
+		JSONObject gameObj=new JSONObject();
+		gameObj.element("state", xiangqiGameState.getState());
+		gameObj.element("A", xiangqiGameState.getA());
+		gameObj.element("B", xiangqiGameState.getB());
+		gameObj.element("type", 8);
+		gameObj.element("turn", xiangqiGameState.getTurn());
+		System.out.println(gameObj.toString());
+		try{
+			w1.sendMessage(gameObj.toString());
+			w2.sendMessage(gameObj.toString());
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		try{
+			xiangqiGameState.getTimer().cancel();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		Timer timer=new Timer();
+		timer.schedule(new XiangqiTimer(xiangqiGameState), XiangqiTimer.TIME_SECOND);
+		xiangqiGameState.setTimer(timer);
+		
+		JSONObject timerObj=new JSONObject();
+		timerObj.element("type",33 );
+		timerObj.element("second", XiangqiTimer.TIME_SECOND/1000);
+		
+		try {
+			w1.sendMessage(timerObj.toString());
+			w2.sendMessage(timerObj.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+}

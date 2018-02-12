@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mapper.RelationshipMapper">
+	<select id="selectUserListbyUserA" parameterType="java.lang.String"
+		resultType="po.User">
+		<!-- SELECT `user`.* FROM `user` where `user`.userid in ( SELECT userB 
+			from relationship where userA=#{userA} ) -->
+		SELECT `user`.*
+		from `user` left JOIN `relationship` on `user`.userid=relationship.userB
+		where usera=#{userA}
+	</select>
+	<insert id="insertRelationship" parameterType="po.Relationship">
+		insert into
+		relationship (userA,userB)
+		values (#{userA},#{userB})
+	</insert>
+	<select id="selectRelationshipByAB" parameterType="po.Relationship"
+		resultType="po.Relationship">
+		select * from relationship
+		where userA=#{userA} and
+		userB=#{userB}
+	</select>
+	<delete id="deleteRelationship" parameterType="po.Relationship">
+		delete from
+		relationship
+		where userA=#{userA} and userB=#{userB}
+	</delete>
+</mapper>

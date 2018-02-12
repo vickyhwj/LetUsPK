@@ -3,6 +3,7 @@ package com.firegame.controller;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.ContextLoader;
@@ -34,7 +39,8 @@ import tool.BQueue;
 
 @Controller
 public class UserController extends BaseController{
-	
+	@Autowired
+	SessionRegistry sessionRegistry;
 	
 	@RequestMapping("/loginxiangqi")
 	public String loginxiangqi(String username,HttpServletResponse response,HttpSession session,HttpServletRequest request) throws IOException{
@@ -160,20 +166,23 @@ public class UserController extends BaseController{
 		jsonObject.element("friendlist",user);
 		response.getWriter().print(jsonObject.toString());
 	}
-	@RequestMapping("/login1")
-	public String login1(HttpServletRequest request,String username,String password,int way){
-		if(way==1){
-			User user=null;
-			if((user=userService.login(username, password))!=null){
-				request.getSession().setAttribute("userid", username);
-				request.setAttribute("user", user);
+	@RequestMapping("/userIndex")
+	public String login1(HttpServletRequest request,HttpServletResponse response,HttpSession session){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		org.springframework.security.core.userdetails.User user=(org.springframework.security.core.userdetails.User)authentication.getPrincipal();
+		User myuser=null;
+		if((myuser=userService.login(user.getUsername(), user.getPassword()))!=null){
+				request.getSession().setAttribute("userid", myuser.getUserid());
+				request.setAttribute("user", myuser);
+				final List<SessionInformation> list=sessionRegistry.getAllSessions(SecurityContextHolder.getContext().getAuthentication().getPrincipal(),false);
+				for(final SessionInformation si:list){
+				    si.expireNow();
+				}
+				sessionRegistry.registerNewSession(session.getId(),SecurityContextHolder.getContext().getAuthentication().getPrincipal() );
+				session.setAttribute("userId", myuser.getUserid());
 				return "userIndex1.jsp";
 			}
 			return null;
-		}
-		if(userService.register(username, password)) request.setAttribute("status", "ע��ɹ�");
-		else request.setAttribute("status", "ע��ʧ��");
-		return "result.jsp";
 	}
 	
 	
@@ -192,4 +201,13 @@ public class UserController extends BaseController{
 			response.getWriter().print(size);
 		}
 	}
+	@RequestMapping("/outLogin")
+	public void outLogin(HttpServletRequest request,HttpServletResponse response){
+		
+	}
+	@RequestMapping("/who")
+	public void who(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		response.getWriter().print(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+	}
+	
 }

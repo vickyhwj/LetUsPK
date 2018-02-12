@@ -1,0 +1,73 @@
+function paixu(list, order, col) {
+    for (var i = 1; i <= list.length - 1; ++i)
+        for (var j = 0; j <= list.length - i - 1; ++j) {
+            if (order == 'up' && list[j][col] > list[j + 1][col]) {
+                var temp = list[j];
+                list[j] = list[j + 1];
+                list[j + 1] = temp;
+            }
+            else if (order == 'down' && list[j][col] < list[j + 1][col]) {
+                var temp = list[j];
+                list[j] = list[j + 1];
+                list[j + 1] = temp;
+            }
+        }
+    return list;
+}
+class Ul extends React.Component {
+    pp(order,col){
+        var list=this.state.list;
+        list=paixu(list,order,col);
+        this.setState({
+            list:list
+        })
+    }
+    constructor() {
+        this.state = {
+            list: [
+                {
+                    name: "v1",
+                    count: 1
+                },
+                {
+                    name: "v2",
+                    count: 22
+                },
+                {
+                    name: "v3",
+                    count: 3
+                }
+
+            ]
+        }
+    }
+    render() {
+        var l = this.state.list.map(function (params) {
+            return (
+                <tr>
+                    <td>{params.name}</td>
+                    <td>{params.count}</td>
+                </tr>
+            )
+        });
+        return (
+            <table className="table table-hover">
+                <thead>
+                    <tr>
+                    
+                        <th><button type="button" className="btn btn-default active" onClick={()=>{this.pp('down','name')}}>name</button></th>
+                        <th><button type="button" className="btn btn-default" onClick={()=>{this.pp('down','count')}}>count</button></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {l}
+                </tbody>
+            </table>
+        );
+    }
+
+}
+var r=React.render(
+    <Ul/>,
+    document.getElementById("app")
+)

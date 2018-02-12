@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mapper.UserMapper">
+	<select id="selectUserListbyUserVo" parameterType="po.UserVo"
+		resultType="po.User">
+		SELECT `user`.*
+		FROM `user`
+		<where>
+			<if test="user!=null and user.userid!=null">
+				and userid like #{user.userid}
+			</if>
+		</where>
+		<if test="desc!=null">
+			ORDER BY win/(win+fail) DESC
+		</if>
+		<if test="index!=null and len!=null">
+			limit #{index},#{len}
+		</if>
+		
+	</select>
+	<select id="getCountOfUserByUserVo" parameterType="po.UserVo"
+		resultType="java.lang.Integer">
+		select count(userid)
+		from `user`
+		<where>
+			<if test="user.userid!=null">
+				and userid like #{user.userid}
+			</if>
+		</where>
+	</select>
+	<resultMap type="po.UserCustom" id="userMessageMap">
+		<id column="userid" property="userid"/>
+		<result column="password" property="password"/>
+		<result column="win" property="win"/>
+		<result column="fail" property="fail"/>
+		<collection property="messages" ofType="po.Message">
+			<id column="msgId" property="msgId"/>
+			<result column="from" property="from"/>
+			<result column="to" property="to"/>
+			<result column="content" property="content"/>
+			<result column="type" property="type"/>
+			<result column="isRead" property="isRead"/>
+			<result column="createDate" property="createDate"/>
+			
+		</collection>
+		
+	</resultMap>
+	<select id="selectUserMessageByUserId" parameterType="java.lang.String"
+		resultMap="userMessageMap">
+		select * from `user` LEFT JOIN message on userid=`to`
+		where userid=#{userid} and isRead=0
+	</select>
+	<update id="updateWinAddOne" parameterType="java.lang.String">
+		update `user`
+		set win=win+1
+		where userid=#{userid}
+	</update>
+	<update id="updateFaillAddOne" parameterType="java.lang.String">
+		update `user`
+		set fail=fail+1
+		where userid=#{userid}
+	</update>
+	<select id="selectUserById" parameterType="java.lang.String" resultType="po.User">
+		select * from `user` where userid=#{userid}
+	</select>
+	<insert id="insertUser" parameterType="po.User"> 
+		insert into `user`
+		values(#{userid},#{password},0,0,NULL);
+	</insert>
+	<update id="updateUserByGameStateId" parameterType="po.User">
+		update `user`
+		set last=#{last}
+		where userid=#{userid}
+	</update>
+</mapper>

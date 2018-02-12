@@ -1,0 +1,5 @@
+package com.firegame.service;
+
+public interface GameStateService {
+
+}

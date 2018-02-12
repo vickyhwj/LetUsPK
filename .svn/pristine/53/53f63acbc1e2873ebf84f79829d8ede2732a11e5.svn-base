@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="mapper.GameStateMapper">
+	<insert id="insertGameState" parameterType="po.GameStateToString" >
+		<selectKey keyProperty="gameStateId" order="AFTER" resultType="java.lang.Integer">
+			select LAST_INSERT_ID()
+		</selectKey>
+		insert into gamestate(gameStateJSON)
+		values(#{gameStateJSON})
+	</insert>
+	<update id="updateGameState" parameterType="po.GameStateToString">
+		update gamestate
+		set gameStateJSON=#{gameStateJSON}
+		where gameStateId=#{gameStateId}
+	</update>
+	<select id="selectGameStateIdFromUser" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select last
+		from `user`
+		where userid=#{userid}
+	</select>
+	<select id="selectGameStateById" parameterType="java.lang.Integer" resultType="po.GameStateToString">
+		select * from gamestate
+		where gameStateId=#{gameStateId}
+	</select>
+	<delete id="deleteGameState" parameterType="java.lang.Integer">
+		delete from gamestate
+		where gameStateId=#{gameStateId}
+	</delete>
+	<update id="removeUsersGameState" parameterType="java.lang.Integer">
+		update `user`
+		set last=NULL
+		where last=#{id}
+	</update>
+</mapper>

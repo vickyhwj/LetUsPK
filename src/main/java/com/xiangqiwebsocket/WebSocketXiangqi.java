@@ -1,5 +1,6 @@
 package com.xiangqiwebsocket;
 
+import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
@@ -15,14 +16,17 @@ import com.firegame.dao.RelationshipDao;
 import com.firegame.dao.UserDao;
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
+import com.websocket.GetHttpSessionConfigurator;
 import com.websocket.MsgStrategy;
 import com.websocket.WebSocket;
 
+import exception.MyRuntimeException;
 import po.GameState;
 import po.GameStateToString;
 import po.User;
 import po.XiangqiGameState;
 import po.XiangqiMove;
+import tool.UserUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,7 +45,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  *                 WebSocket��������
  * @author uptop
  */
-@ServerEndpoint("/websocketxiangqi")
+@ServerEndpoint(value="/websocketxiangqi",configurator=GetHttpSessionConfigurator.class)
 public class WebSocketXiangqi implements WebSocket {
 	RelationshipDao relationshipDao = (RelationshipDao) ContextLoader
 			.getCurrentWebApplicationContext().getBean("relationshipDao");
@@ -85,13 +89,17 @@ public class WebSocketXiangqi implements WebSocket {
 	 *            ��ѡ�Ĳ���sessionΪ��ĳ���ͻ��˵����ӻỰ����Ҫͨ��������ͻ��˷������
 	 * @throws Exception
 	 */
+	@Override
 	@OnOpen
-	public void onOpen(Session session) throws Exception {
+	public void onOpen(Session session,EndpointConfig config) throws Exception {
 		this.session = session;
-		Map<String, List<String>> map = session.getRequestParameterMap();
-		List<String> list = map.get("username");
-		this.username = list.get(0);
-
+		
+		
+		 HttpSession httpSession= (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
+	     this.username=(String) httpSession.getAttribute("userId");
+	      if(username==null)
+	    	  throw new MyRuntimeException(MyRuntimeException.USERNOTEQUAL);
+	
 		synchronized (WebSocketXiangqi.class) {
 			WebSocketXiangqi presocket = socketMap.get(this.username);
 			
@@ -369,5 +377,7 @@ public class WebSocketXiangqi implements WebSocket {
 			}
 		}
 	}
+
+	
 
 }
