@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.websocket.EndpointConfig;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -51,6 +52,12 @@ public class Wss implements WebSocket{
 
 	@Override
 	public void sendMsg(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onOpen(Session session, EndpointConfig config) throws Exception {
 		// TODO Auto-generated method stub
 		
 	}

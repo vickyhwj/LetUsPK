@@ -32,7 +32,7 @@ public class RedisUserCache implements UserCache{
 				return list;
 			}
 		});
-		if(list.isEmpty()) return null;
+		if(list==null||list.isEmpty()) return null;
 		String password=(String) list.get(0);
 		Collection<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
 		

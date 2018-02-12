@@ -85,7 +85,7 @@
 		<aop:advisor advice-ref="addKeyAOP" pointcut-ref="addaop"/>
 	</aop:config> 
 	<import resource="classpath:applicationContext-mongodb.xml"/>
-	<import resource="classpath:applicationContext-redis.xml"/>
-	<import resource="classpath:spring-security.xml"/>
+<!-- 	<import resource="classpath:applicationContext-redis.xml"/>
+ -->	<import resource="classpath:spring-security.xml"/>
 	
 </beans>

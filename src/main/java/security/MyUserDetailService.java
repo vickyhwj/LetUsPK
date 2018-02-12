@@ -41,7 +41,7 @@ public class MyUserDetailService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(final String username)
 			throws UsernameNotFoundException, DataAccessException {
-		List<Map> map=securityDao.findUserRolesMapByUserId(username);
+	//	List<Map> map=securityDao.findUserRolesMapByUserId(username);
 		UserDetails userDetails = null;
 		if (userCache != null)
 			userDetails=userCache.getUserFromCache(username);
