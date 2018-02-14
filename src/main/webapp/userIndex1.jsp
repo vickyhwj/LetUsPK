@@ -145,8 +145,8 @@
 						</div>
 					</div>
 
-					<a style="font-size: 10px;" href="mobilelogin?username=${user.userid}">进入五子棋游戏</a>
-					<a style="font-size: 10px;" href="loginxiangqi?username=${user.userid}">进入象棋游戏</a>
+					<a style="font-size: 10px;" href="loginwuziqi?username=${user.userid}">进入五子棋</a>
+					<a style="font-size: 10px;" href="loginxiangqi?username=${user.userid}">进入象棋</a>
 					<br/>
 					<a href="#msglist">我的消息</a>&nbsp;
 					<a href="#friendul">我的好友</a>

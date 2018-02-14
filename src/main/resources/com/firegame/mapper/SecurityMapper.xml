@@ -6,7 +6,7 @@
 		<result property="url" column="url"/>
 		<association property="role" javaType="po.Role">
 			<id property="roleid" column="roleId"/>
-			<result property="rolename" column="roleName"/>
+			<result property="description" column="description"/>
 		</association>
 	</resultMap>
 	<resultMap type="po.UserRoles" id="userRoles">
@@ -14,7 +14,7 @@
 		<result property="password" column="password"/>
 		<collection property="roles" ofType="po.Role">
 			<id property="roleid" column="roleid"/>
-			<result property="rolename" column="rolename"/>
+			<result property="description" column="description"/>
 		</collection>
 	
 	</resultMap>
@@ -24,8 +24,8 @@
 		select
 			a.id as id,
 			a.url as url,
-			a.roleId as roleId,
-			r.roleName as roleName
+			a.roleId as roleid,
+			r.description as description
 		from
 			authority a
 			join `role` r on
@@ -37,7 +37,7 @@
 				u.userid as userid,
 				u.password as password,
 				r.roleId roleid,
-				r.roleName rolename
+				r.description description
 			from
 				`user` u
 				join userrole ur on
@@ -52,7 +52,7 @@
 				u.userid as userid,
 				u.password as password,
 				r.roleId roleid,
-				r.roleName rolename
+				r.description description
 			from
 				`user` u
 				join userrole ur on

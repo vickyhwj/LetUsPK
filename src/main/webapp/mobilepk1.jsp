@@ -259,9 +259,9 @@ out
 	                    var fl = friendlist;
 	                    for (var i = 0; i < fl.length; ++i) {
 	                        for (var j = 0; j < data.length; ++j)
-	                            if (data[j] == fl[i].userid) {
+	                            if (data[j].userid == fl[i].userid) {
 	                                fl[i].online = true;
-	                                $('li[da=' + data[j] + ']').css({
+	                                $('li[da=' + data[j].userid + ']').css({
 	                                    "background-color": 'red'
 	                                })
 	                            }

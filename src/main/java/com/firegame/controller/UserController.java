@@ -54,11 +54,11 @@ public class UserController extends BaseController{
 		request.setAttribute("list",relationshipService.selectUserListbyUserA(username));
 		return "index1.jsp";
 	}
-	@RequestMapping("/mobilelogin")
+	@RequestMapping("/loginwuziqi")
 	public String mobilelogin(String username,HttpServletResponse response,HttpSession session,HttpServletRequest request) throws IOException{
 		request.setAttribute("username", username);
 		request.setAttribute("list",relationshipService.selectUserListbyUserA(username));
-		return "mobilepk1.jsp";
+		return "wuziqi/wuziqi.jsp";
 	}
 	@RequestMapping("/getUserListByUserId")
 	public void getUserListByUserId(HttpServletRequest request,HttpServletResponse response,String userId,int index,int len) throws IOException{

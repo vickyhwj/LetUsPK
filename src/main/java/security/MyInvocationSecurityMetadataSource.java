@@ -47,7 +47,7 @@ public class MyInvocationSecurityMetadataSource implements FilterInvocationSecur
     			collection=new ArrayList<>();
     			resourceMap.put(authority.getUrl(), collection);
     		}
-    		ConfigAttribute cano = new SecurityConfig(authority.getRole().getRolename());
+    		ConfigAttribute cano = new SecurityConfig(authority.getRole().getRoleid());
 			collection.add(cano);
     		
     	}

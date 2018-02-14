@@ -15,6 +15,7 @@ import org.springframework.web.context.ContextLoader;
 import com.firegame.dao.RelationshipDao;
 import com.firegame.dao.UserDao;
 import com.google.gson.Gson;
+import com.websocket.AbstractWebSocket;
 import com.websocket.GetHttpSessionConfigurator;
 import com.websocket.MsgStrategy;
 import com.websocket.WebSocket;
@@ -44,28 +45,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @author uptop
  */
 @ServerEndpoint(value="/websocket",configurator=GetHttpSessionConfigurator.class)
-public class WebSocketWuziqi implements WebSocket {
-	RelationshipDao relationshipDao = (RelationshipDao) ContextLoader
-			.getCurrentWebApplicationContext().getBean("relationshipDao");
-	UserDao userDao = (UserDao) ContextLoader.getCurrentWebApplicationContext()
-			.getBean("userDao");
-	MongoTemplate mongoTemplate = (MongoTemplate) ContextLoader
-			.getCurrentWebApplicationContext().getBean("mongoTemplate");
-	String username, gameMapKey;
-
-	public String getGameMapKey() {
-		return gameMapKey;
-	}
-
-	public void setGameMapKey(String gameMapKey) {
-		this.gameMapKey = gameMapKey;
-	}
-
-	// concurrent����̰߳�ȫSet���������ÿ���ͻ��˶�Ӧ��MyWebSocket������Ҫʵ�ַ�����뵥һ�ͻ���ͨ�ŵĻ�������ʹ��Map����ţ�����Key����Ϊ�û���ʶ
+public class WebSocketWuziqi extends AbstractWebSocket {
+	
 	public static ConcurrentHashMap<String, WebSocketWuziqi> socketMap = new ConcurrentHashMap<String, WebSocketWuziqi>();
 	public static ConcurrentHashMap<String, WuziqiGameState> gameMap = new ConcurrentHashMap<String, WuziqiGameState>();
 
-	// ��ĳ���ͻ��˵����ӻỰ����Ҫͨ��������ͻ��˷������
 	private Session session;
 
 	public Session getSession() {
@@ -76,13 +60,7 @@ public class WebSocketWuziqi implements WebSocket {
 		this.session = session;
 	}
 
-	/**
-	 * ���ӽ����ɹ����õķ���
-	 * 
-	 * @param session
-	 *            ��ѡ�Ĳ���sessionΪ��ĳ���ͻ��˵����ӻỰ����Ҫͨ��������ͻ��˷������
-	 * @throws Exception
-	 */
+	
 	@OnOpen
 	public void onOpen(Session session,EndpointConfig config) throws Exception {
 
@@ -93,78 +71,8 @@ public class WebSocketWuziqi implements WebSocket {
 	      if(username==null)
 	    	  throw new MyRuntimeException(MyRuntimeException.USERNOTEQUAL);
 
-		WebSocketWuziqi presocket = socketMap.get(this.username);
-		if (presocket != null)
-			presocket.session.close();
-
-		socketMap.put(this.username, this);
-		ArrayList<User> userList = (ArrayList<User>) relationshipDao
-				.selectUserListbyUserA(username);
-		ArrayList<String> friendOnlineList = new ArrayList<String>();
-		for (User user : userList) {
-			if (socketMap.containsKey(user.getUserid())) {
-				friendOnlineList.add(user.getUserid());
-			}
-		}
-		JSONObject result = new JSONObject();
-		result.element("type", 2);
-		result.element("list", friendOnlineList);
-		System.out.print(result.toString());
-		try {
-			sendMessage(result.toString());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// ֪ͨ����
-		JSONObject comResult = new JSONObject();
-		comResult.element("type", 1);
-		comResult.element("from", username);
-		for (User user : userList) {
-			if (socketMap.containsKey(user.getUserid())) {
-				WebSocketWuziqi socketTest = socketMap.get(user.getUserid());
-				socketTest.sendMsg(comResult.toString());
-			}
-		}
-
-		Criteria criteria = new Criteria();
-
-		WuziqiGameState gameState = (WuziqiGameState) mongoTemplate.findOne(
-				new Query(new Criteria().orOperator(
-						Criteria.where("A").is(username), Criteria.where("B")
-								.is(username))), WuziqiGameState.class);
-		if (gameState != null) {
-
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.element("turn", gameState.getTurn());
-			jsonObject.element("state", gameState.getState());
-			jsonObject.element("type", 8);
-			jsonObject.element("A", gameState.getA());
-			jsonObject.element("B", gameState.getB());
-			String A = jsonObject.getString("A");
-			String B = jsonObject.getString("B");
-			String key = A.compareTo(B) < 0 ? A + " " + B : B + " " + A;
-			gameMapKey = key;
-			if (gameMap.containsKey(gameMapKey))
-				throw new Exception();
-			String opp = A.equals(username) ? B : A;
-			if (!socketMap.containsKey(opp))
-				return;
-			gameMap.put(key, gameState);
-			try {
-				WebSocketWuziqi w1 = socketMap.get(A);
-				w1.sendMessage(jsonObject.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			try {
-				WebSocketWuziqi w1 = socketMap.get(B);
-				w1.sendMessage(jsonObject.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		}
+		onOpenTemple();
+	  
 		System.out.println("�������Ӽ��룡��ǰ��������Ϊ" + socketMap.size());
 		System.out.println("�������Ӽ��룡��ǰgameState" + gameMap.size());
 
@@ -175,30 +83,10 @@ public class WebSocketWuziqi implements WebSocket {
 	 */
 	@OnClose
 	public void onClose() {
-		try {
-			socketMap.remove(username);
-			JSONObject comResult = new JSONObject();
-			comResult.element("type", 3);
-			comResult.element("from", username);
-			ArrayList<User> userList = (ArrayList<User>) relationshipDao
-					.selectUserListbyUserA(username);
-			for (User user : userList) {
-				try {
-					WebSocketWuziqi socketTest = socketMap
-							.get(user.getUserid());
-					if (socketTest != null && socketTest.getSession().isOpen())
-						socketTest.sendMessage(comResult.toString());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			out();
-			socketMap.remove(username);
+		onCloseTemple();;
 			System.out.println("��һ���ӹرգ���ǰ��������Ϊ" + socketMap.size());
 			System.out.println("�������Ӽ��룡��ǰgameState" + gameMap.size());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 	}
 
 	/**
@@ -323,6 +211,69 @@ public class WebSocketWuziqi implements WebSocket {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		// TODO Auto-generated method stub
+		session.close();
+	}
+
+	@Override
+	public Map getSocketMap() {
+		// TODO Auto-generated method stub
+		return socketMap;
+	}
+
+	@Override
+	public void loadLastGameState() throws Exception {
+		// TODO Auto-generated method stub
+	    
+			Criteria criteria = new Criteria();
+
+			WuziqiGameState gameState = (WuziqiGameState) mongoTemplate.findOne(
+					new Query(new Criteria().orOperator(
+							Criteria.where("A").is(username), Criteria.where("B")
+									.is(username))), WuziqiGameState.class);
+			if (gameState != null) {
+
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.element("turn", gameState.getTurn());
+				jsonObject.element("state", gameState.getState());
+				jsonObject.element("type", 8);
+				jsonObject.element("A", gameState.getA());
+				jsonObject.element("B", gameState.getB());
+				String A = jsonObject.getString("A");
+				String B = jsonObject.getString("B");
+				String key = A.compareTo(B) < 0 ? A + " " + B : B + " " + A;
+				gameMapKey = key;
+				if (gameMap.containsKey(gameMapKey))
+					throw new Exception();
+				String opp = A.equals(username) ? B : A;
+				if (!socketMap.containsKey(opp))
+					return;
+				gameMap.put(key, gameState);
+				try {
+					WebSocketWuziqi w1 = socketMap.get(A);
+					w1.sendMessage(jsonObject.toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				try {
+					WebSocketWuziqi w1 = socketMap.get(B);
+					w1.sendMessage(jsonObject.toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			}
+		
+	}
+
+	@Override
+	public Map getGameMap() {
+		// TODO Auto-generated method stub
+		return gameMap;
 	}
 
 }

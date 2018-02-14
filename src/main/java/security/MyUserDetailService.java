@@ -51,7 +51,7 @@ public class MyUserDetailService implements UserDetailsService {
 					.findUserRolesByUserId(username);
 			for (final Role role : userRoles.getRoles()) {
 				final GrantedAuthorityImpl auth = new GrantedAuthorityImpl(
-						role.getRolename());
+						role.getRoleid());
 				auths.add(auth);
 
 			}
