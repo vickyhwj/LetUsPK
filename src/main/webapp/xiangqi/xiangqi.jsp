@@ -141,7 +141,7 @@ span#who {
 								
 								<c:forEach items="${list}" var="keyword">
 									<li class="list-group-item" da="${ keyword.userid}" style=" padding-bottom: 0px;padding-top: 0px;padding-left: 0px;padding-right: 0px;border-bottom-width: 2px;">
-											<img src="/upload/${ keyword.userid}.png" style="width: 50px;height: 50px" alt="Image">
+											<img src="/upload/${ keyword.userid}.png" style="width: 50px;height: 50px" onerror="this.src='img/img_no_find.png'">
 										
 										${ keyword.userid}
 										
@@ -493,7 +493,7 @@ span#who {
 					if (data.type == 2) {
 						var list = data.list;
 						for (var i = 0; i < data.list.length; ++i)
-							$("li[da=" + list[i] + "]").append('<span class="label label-info online" >online</span>')
+							$("li[da=" + list[i].userid + "]").append('<span class="label label-info online" >online</span>')
 					}
 					//对方上线
 					else if (data.type == 1) {

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpSession;
 
 
 
+
 import net.sf.json.JSONObject;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import po.UserCustom;
 import po.WuziqiGameState;
 import po.XiangqiGameState;
 import po.Xielou;
+import tool.AuthenticationUtil;
 import tool.BQueue;
 
 
@@ -39,14 +41,14 @@ import tool.BQueue;
 public class GameStateController extends BaseController{
 	
 	@RequestMapping("/removeXiangqiGameState")
-	public void removeXiangqiGameState(HttpServletResponse response,HttpSession session,String userid) throws IOException{
-		gameStateService.removeXiangqiGameState(userid);
+	public void removeXiangqiGameState(HttpServletResponse response) throws IOException{
+		gameStateService.removeXiangqiGameState(AuthenticationUtil.getUser().getUsername());
 		
 		response.getWriter().print("ok");
 	}
 	@RequestMapping("/removeWuziqiGameState")
 	public void removeWuziqiGameState(HttpServletResponse response,HttpSession session,String userid) throws IOException{
-		gameStateService.removeWuziqiGameState(userid);
+		gameStateService.removeWuziqiGameState(AuthenticationUtil.getUser().getUsername());
 		
 		response.getWriter().print("ok");
 	}

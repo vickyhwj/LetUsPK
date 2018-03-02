@@ -1,3 +1,11 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,7 +43,8 @@
    	<legend>login</legend>
    
    	<div class="form-group">
-   		<label for="">username</label>
+   		
+   		<label for="">username${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message }</label>
    		<input type="text" class="form-control" id="" placeholder="Input field" name="j_username">
    	</div>
    	<div class="form-group">
@@ -48,7 +57,7 @@
    	<button type="submit" class="btn btn-primary">Submit</button>
    </form>
    <a href="index.html">人机对战</a>
-   <form action="login1" method="POST" role="form">
+   <form action="register" method="POST" role="form">
    	<legend>register</legend>
    
    	<div class="form-group">

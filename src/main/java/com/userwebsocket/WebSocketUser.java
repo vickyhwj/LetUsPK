@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.ejb.MessageDriven;
 import javax.servlet.http.HttpSession;
 import javax.websocket.EndpointConfig;
+import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -24,6 +25,7 @@ import po.Message;
 
 import com.firegame.service.MessageService;
 import com.firegame.service.RelationshipService;
+import com.websocket.BaseWebSocket;
 import com.websocket.GetHttpSessionConfigurator;
 import com.websocket.MsgStrategy;
 import com.websocket.WebSocket;
@@ -32,37 +34,31 @@ import com.xiangqiwebsocket.WebSocketMsg;
 import exception.MyRuntimeException;
 
 @ServerEndpoint(value="/websocketMsg",configurator=GetHttpSessionConfigurator.class)
-public class WebSocketUser implements WebSocket {
+public class WebSocketUser extends BaseWebSocket {
 	MessageService messageService = (MessageService) ContextLoader
 			.getCurrentWebApplicationContext().getBean("messageService");
 	RelationshipService relationshipService = (RelationshipService) ContextLoader
 			.getCurrentWebApplicationContext().getBean("relationshipService");
-	String username;
 	public static ConcurrentHashMap<String, WebSocketUser> socketMap = new ConcurrentHashMap<String, WebSocketUser>();
-	private Session session;
+	
 
-	@Override
+/*	@Override
 	@OnOpen
-	public void onOpen(Session session,EndpointConfig config) throws IOException {
+	public void onOpen(Session session,EndpointConfig config) throws Exception {
 		// TODO Auto-generated method stub
-		this.session = session;
-		 HttpSession httpSession= (HttpSession) config.getUserProperties().get(HttpSession.class.getName());
-	     this.username=(String) httpSession.getAttribute("userId");
-	      if(username==null)
-	    	  throw new MyRuntimeException(MyRuntimeException.USERNOTEQUAL);
-		WebSocketUser presocket=socketMap.get(this.username);
-		if(presocket!=null) presocket.session.close();
-		socketMap.put(this.username, this);
-		
+	
+		super.onOpen(session, config);
 		System.out.println("在线人数："+socketMap.size());
 	}
 
 	@Override
+	@OnClose
 	public void onClose() {
 		// TODO Auto-generated method stub
-		socketMap.remove(username);
+		super.onClose();
 		System.out.println("在线人数："+socketMap.size());
-	}
+
+	}*/
 
 	@Override
 	@OnMessage
@@ -90,21 +86,23 @@ public class WebSocketUser implements WebSocket {
 	@OnError
 	public void onError(Session session, Throwable error) {
 		// TODO Auto-generated method stub
-		System.out.println("error");
-        error.printStackTrace();
-	}
-
-	@Override
-	public void sendMessage(String message) throws IOException {
-		// TODO Auto-generated method stub
-		this.session.getBasicRemote().sendText(message);
+		super.onError(session, error);
+		System.out.println("在线人数："+socketMap.size());
 
 	}
+
+	
 
 	@Override
 	public void sendMsg(String msg) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Map getSocketMap() {
+		// TODO Auto-generated method stub
+		return this.socketMap;
 	}
 
 }

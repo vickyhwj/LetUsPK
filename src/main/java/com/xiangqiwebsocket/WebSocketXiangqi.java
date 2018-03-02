@@ -17,6 +17,7 @@ import com.firegame.dao.UserDao;
 import com.google.gson.Gson;
 import com.mongodb.BasicDBObject;
 import com.websocket.AbstractWebSocket;
+import com.websocket.GameWebSocket;
 import com.websocket.GetHttpSessionConfigurator;
 import com.websocket.MsgStrategy;
 import com.websocket.WebSocket;
@@ -42,7 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 @ServerEndpoint(value = "/websocketxiangqi", configurator = GetHttpSessionConfigurator.class)
-public class WebSocketXiangqi extends AbstractWebSocket {
+public class WebSocketXiangqi extends GameWebSocket {
 
 	static Thread timer;
 	static {
@@ -53,43 +54,8 @@ public class WebSocketXiangqi extends AbstractWebSocket {
 	public static ConcurrentHashMap<String, WebSocketXiangqi> socketMap = new ConcurrentHashMap<String, WebSocketXiangqi>();
 	public static ConcurrentHashMap<String, XiangqiGameState> gameMap = new ConcurrentHashMap<String, XiangqiGameState>();
 
-	private Session session;
-
-	public Session getSession() {
-		return session;
-	}
-
-	public void setSession(Session session) {
-		this.session = session;
-	}
 
 	
-	@Override
-	@OnOpen
-	public void onOpen(Session session, EndpointConfig config) throws Exception {
-		this.session = session;
-
-		HttpSession httpSession = (HttpSession) config.getUserProperties().get(
-				HttpSession.class.getName());
-		username = (String) httpSession.getAttribute("userId");
-		if (username == null)
-			throw new MyRuntimeException(MyRuntimeException.USERNOTEQUAL);
-
-		/*
-		 * synchronized (WebSocketXiangqi.class) { WebSocketXiangqi presocket =
-		 * socketMap.get(this.username);
-		 * 
-		 * if (presocket != null) { presocket.getSession().close(); }
-		 * 
-		 * socketMap.put(this.username, this);
-		 * 
-		 * }
-		 */
-		onOpenTemple();
-		System.out.println("�������Ӽ��룡��ǰ��������Ϊ" + socketMap.size());
-		System.out.println("�������Ӽ��룡��ǰgameState" + gameMap.size());
-
-	}
 
 	// 计时器
 	public void createTimer(XiangqiGameState gameState, WebSocketXiangqi w1,
@@ -108,14 +74,7 @@ public class WebSocketXiangqi extends AbstractWebSocket {
 
 	}
 
-	@OnClose
-	public void onClose() {
-			onCloseTemple();
-			System.out.println("WebSocketXiangqi.sizeΪ" + socketMap.size());
-			System.out.println("XiangqiGameMap.size" + gameMap.size());
-		
-	}
-
+	
 	
 	@OnMessage
 	public void onMessage(String message, Session session)
@@ -150,16 +109,6 @@ public class WebSocketXiangqi extends AbstractWebSocket {
 	}
 
 
-	@OnError
-	public void onError(Session session, Throwable error) {
-		try {
-			System.out.println("�������");
-			out();
-			error.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	@Override
 	public void out() {
 
@@ -224,29 +173,7 @@ public class WebSocketXiangqi extends AbstractWebSocket {
 	}
 
 
-	public void sendMessage(String message) throws IOException {
-		this.session.getBasicRemote().sendText(message);
-
-	}
-
-	public void sendMsg(String msg) {
-		Set<Entry<String, WebSocketXiangqi>> set = socketMap.entrySet();
-		for (Entry<String, WebSocketXiangqi> entry : set) {
-			try {
-				entry.getValue().sendMessage(msg);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public void close() throws IOException {
-		// TODO Auto-generated method stub
-		this.session.close();
-
-	}
+	
 
 	@Override
 	public Map getSocketMap() {

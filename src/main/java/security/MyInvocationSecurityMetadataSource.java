@@ -3,6 +3,7 @@ package security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,7 @@ public class MyInvocationSecurityMetadataSource implements FilterInvocationSecur
 	
 	private final seccurity.tool.UrlMatcher urlMatcher = new AntUrlPathMatcher();
     // key:url value:角色
-    private static Map<String, Collection<ConfigAttribute>> resourceMap = null;
+    public static Map<String, Collection<ConfigAttribute>> resourceMap = null;
 
     // tomcat启动时实例化一次
     public MyInvocationSecurityMetadataSource(SecurityDao securityDao) {
@@ -37,14 +38,14 @@ public class MyInvocationSecurityMetadataSource implements FilterInvocationSecur
     }
 
     // tomcat开启时加载一次，加载所有url和权限（或角色）的对应关系
-    private void loadResourceDefine() {
+    public void loadResourceDefine() {
     
     	resourceMap = new HashMap<String, Collection<ConfigAttribute>>();
     	List<Authority> list=securityDao.findAllAuthority();
     	for(Authority authority:list){
     		Collection<ConfigAttribute> collection=resourceMap.get(authority.getUrl());
     		if(collection==null){
-    			collection=new ArrayList<>();
+    			collection=new HashSet<>();
     			resourceMap.put(authority.getUrl(), collection);
     		}
     		ConfigAttribute cano = new SecurityConfig(authority.getRole().getRoleid());

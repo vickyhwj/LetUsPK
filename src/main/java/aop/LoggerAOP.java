@@ -34,6 +34,7 @@ public class LoggerAOP implements MethodInterceptor{
 		
 		return around(arg0);
 	}
+	
 	public Object around(MethodInvocation joinPoint) throws Throwable{
 		long start=System.currentTimeMillis();
 		Object result=joinPoint.proceed();

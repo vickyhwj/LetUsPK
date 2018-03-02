@@ -16,6 +16,7 @@ import po.Authority;
 import po.Role;
 import po.User;
 import po.UserRoles;
+import po.Userrole;
 @Repository("securityDao")
 public class SecurityDaoImpl extends SqlSessionDaoSupport implements SecurityDao{
 	String ns="com.firegame.mapper.SecurityMapper";
@@ -40,6 +41,52 @@ public class SecurityDaoImpl extends SqlSessionDaoSupport implements SecurityDao
 		// TODO Auto-generated method stub
 		List<Map> map= this.getSqlSession().selectList(ns+".findUserRolesMapByUserId",userid);
 		return map;
+	}
+	@Override
+	public List<Role> findAllRoles() {
+		// TODO Auto-generated method stub
+		List<Role> list= this.getSqlSession().selectList(ns+".findAllRoles");
+		return list;
+	}
+	@Override
+	public int updateUserRoleIsRun(Map map) {
+		// TODO Auto-generated method stub
+		Integer re=this.getSqlSession().update(ns+".updateUserRoleIsRun",map);
+		return re;
+	}
+	@Override
+	public int insertUserRole(Userrole userrole) {
+		// TODO Auto-generated method stub
+		return this.getSqlSession().insert(ns+".insertUserRole", userrole);
+	
+	}
+	@Override
+	public void removeUser(String userid) {
+		// TODO Auto-generated method stub
+		this.getSqlSession().selectOne(ns+".removeUser", userid);
+		
+	}
+	@Override
+	public void removeRole(String roleid) {
+		// TODO Auto-generated method stub
+		this.getSqlSession().selectOne(ns+".removeRole",roleid);
+	}
+	@Override
+	public void removeAuth(Long id) {
+		// TODO Auto-generated method stub
+		this.getSqlSession().delete(ns+".removeAuth",id);
+		
+	}
+	@Override
+	public void insertRole(Role role) {
+		// TODO Auto-generated method stub
+		this.getSqlSession().insert(ns+".insertRole",role);
+		
+	}
+	@Override
+	public void insertAuth(Authority authority) {
+		// TODO Auto-generated method stub
+		this.getSqlSession().insert(ns+".insertAuth", authority);
 	}
 	
 	

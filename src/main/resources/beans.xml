@@ -53,7 +53,7 @@
 	</bean>
 	
 	<bean id="fileService" class="service.FileService">
-		<property name="path1" value="H:/upload">
+		<property name="path1" value="E:/upload">
 			
 		</property>
 	</bean>

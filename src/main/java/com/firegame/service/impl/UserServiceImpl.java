@@ -40,7 +40,7 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
 		map.put("userid", userid);
 		return (ArrayList<User>) userDao.find(map);
 	}
-	@Secured("ROLE_FIND")
+//	@Secured("ROLE_FIND")
 	@Override
 	public ArrayList<User> selectUserListbyUserid_page(String userid,int index,int len,Page<User> page){
 		

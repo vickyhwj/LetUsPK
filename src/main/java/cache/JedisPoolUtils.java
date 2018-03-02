@@ -165,5 +165,15 @@ public class JedisPoolUtils {
 	public interface WorkRunnable<T> {
 		public T run(Jedis jedis);
 	}
+	public static void flushDB(){
+		work(new WorkRunnable<Void>() {
 
+			@Override
+			public Void run(Jedis jedis) {
+				// TODO Auto-generated method stub
+				jedis.flushDB();
+				return null;
+			}
+		});
+	}
 }

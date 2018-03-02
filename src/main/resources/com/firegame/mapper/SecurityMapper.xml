@@ -30,6 +30,7 @@
 			authority a
 			join `role` r on
 			a.roleId = r.roleId
+		order by url
 
 	</select>
 	<select id="findUserRolesByUserId" resultMap="userRoles" parameterType="java.lang.String">
@@ -62,5 +63,36 @@
 			where u.userid=#{userid} and isrun=1
 		
 	</select>
-
+	<select id="findAllRoles" resultType="po.Role">
+		select * from role
+	</select>
+	
+	<update id="updateUserRoleIsRun" parameterType="map" >
+		update userrole
+		set isRun=#{isrun}
+		where userId=#{userid} and roleId=#{roleid}
+	</update>
+	
+	<insert id="insertUserRole" parameterType="po.Userrole" >
+		insert into userrole(userId,roleId,isRun)
+		values(#{userid},#{roleid},#{isrun})
+	</insert>
+	
+	<select id="removeUser" parameterType="java.lang.String" statementType="CALLABLE">
+		{call removeUser(#{userid})}
+	</select>
+	<select id="removeRole" parameterType="java.lang.String" statementType="CALLABLE">
+		{call removeRole(#{userid})}
+	</select>
+	<delete id="removeAuth" parameterType="long">
+		delete from authority where authority.id=#{aid};
+	</delete>
+	<insert id="insertRole" parameterType="po.Role">
+		insert into role
+		values(#{roleid},#{description})
+	</insert>
+	<insert id="insertAuth" parameterType="po.Authority">
+		insert into authority(url,roleId)
+		values(#{url},#{role.roleid})
+	</insert>
 </mapper>

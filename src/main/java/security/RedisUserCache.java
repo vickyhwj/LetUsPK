@@ -66,8 +66,18 @@ public class RedisUserCache implements UserCache{
 	}
 
 	@Override
-	public void removeUserFromCache(String username) {
+	public void removeUserFromCache(final String username) {
 		// TODO Auto-generated method stub
+		JedisPoolUtils.work(new WorkRunnable<Void>() {
+
+			@Override
+			public Void run(Jedis jedis) {
+				// TODO Auto-generated method stub
+				String key=RedisCachePre.USERDETAIL+username;
+				jedis.del(key);
+				return null;
+			}
+		});
 		
 	}
 

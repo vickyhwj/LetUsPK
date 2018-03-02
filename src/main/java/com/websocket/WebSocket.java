@@ -12,19 +12,19 @@ import javax.websocket.Session;
 import org.apache.commons.logging.impl.AvalonLogger;
 
 public interface WebSocket {
-	@OnOpen
+	
 	public abstract void onOpen(Session session, EndpointConfig config)
 			throws Exception;
 
-	@OnClose
+	
 	public abstract void onClose();
 
-	@OnMessage
+	
 	public abstract void onMessage(String message, Session session)
 			throws InstantiationException, IllegalAccessException,
 			ClassNotFoundException;
 
-	@OnError
+	
 	public abstract void onError(Session session, Throwable error);
 
 	public void sendMessage(String message) throws IOException;

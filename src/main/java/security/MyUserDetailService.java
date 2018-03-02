@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
 import org.springframework.security.core.userdetails.User;
@@ -49,6 +50,8 @@ public class MyUserDetailService implements UserDetailsService {
 			final Collection<GrantedAuthority> auths = new ArrayList<GrantedAuthority>();
 			final UserRoles userRoles = securityDao
 					.findUserRolesByUserId(username);
+			if(userRoles==null)
+				throw new BadCredentialsException("用户名不存在");
 			for (final Role role : userRoles.getRoles()) {
 				final GrantedAuthorityImpl auth = new GrantedAuthorityImpl(
 						role.getRoleid());

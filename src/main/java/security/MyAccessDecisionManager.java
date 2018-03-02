@@ -3,6 +3,8 @@ package security;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.enterprise.inject.New;
+
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -25,8 +27,14 @@ public class MyAccessDecisionManager implements AccessDecisionManager {
 		if (configAttributes == null) {
 			return;
 		}
+		for (final GrantedAuthority ga : authentication.getAuthorities()) {
+			if (configAttributes.contains(new SecurityConfig(ga.getAuthority()))) {
+				return;
+			}
+		}
+		
 
-		final Iterator<ConfigAttribute> ite = configAttributes.iterator();
+	/*	final Iterator<ConfigAttribute> ite = configAttributes.iterator();
 		while (ite.hasNext()) {
 			final ConfigAttribute ca = ite.next();
 			final String needRole = ((SecurityConfig) ca).getAttribute();
@@ -36,7 +44,7 @@ public class MyAccessDecisionManager implements AccessDecisionManager {
 					return;
 				}
 			}
-		}
+		}*/
 		// 注意：执行这里，后台是会抛异常的，但是界面会跳转到所配的access-denied-page页面
 		throw new AccessDeniedException("no right");
 	}

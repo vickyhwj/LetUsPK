@@ -96,12 +96,16 @@ $("#go").click(function (e) {
 
 $.ajax({
     type: "get",
-    url: 'loginByJson',
-    data: 'username=' + username + '&password=' + password,
+    url: 'getLoginUserDetail',
+    data: '',
     success: function (response) {
         var data = JSON.parse(response);
         console.log(data)
         if (data.status != 'ok') return;
+        
+        $('#user_userid').text(data.userCustom.userid);
+        $('#user_win_fail').text("win:"+data.userCustom.win+' lose:'+data.userCustom.fail)
+        
         $("#friendul").html("");
         var friendlist = data.friendlist;
         for (var i = 0; i < friendlist.length; ++i)
@@ -136,7 +140,7 @@ $.ajax({
 	                }
 	                $.ajax({
 	                  url: 'getFridendListJSON',
-	                  data:'userA=' +username,
+	                  data:'',
 	                  type:'get',
 	                  success: function (res) {
 	                    var data=JSON.parse(res);

@@ -20,6 +20,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import fileUtils.Progress;
 import service.FileService;
+import tool.AuthenticationUtil;
 
 @Controller
 public class FileController {
@@ -35,9 +36,10 @@ public class FileController {
            // String uploadPath = request.getSession().getServletContext().getRealPath(path);
             try {
                 FileUtils.copyInputStreamToFile(file.getInputStream(),
-                        new File(uploadPath, session.getAttribute("userid")+".png"));
+                        new File(uploadPath, AuthenticationUtil.getUser().getUsername()+".png"));
                 flag = true;
             } catch (Exception e) {
+            	e.printStackTrace();
             }
 
         }
