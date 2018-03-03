@@ -33,7 +33,7 @@ public class WatchXiangqi implements WebSocket{
 		this.session=session;
 		Map<String,List<String>> map= session.getRequestParameterMap();
 		List<String> pl= map.get("key");
-		gameMapKey=pl.get(0).replaceAll("@", " ");
+		gameMapKey=pl.get(0).replaceAll("-", " ");
 		synchronized(WatchXiangqi.class){
 			CopyOnWriteArraySet<WatchXiangqi> watSet= watchMap.get(gameMapKey);
 			if(watSet==null){

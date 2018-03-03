@@ -3,6 +3,7 @@ package com.firegame.controller;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.firegame.service.GameStateService;
 import com.firegame.service.ManagerService;
@@ -17,7 +18,9 @@ public class BaseController {
 	RelationshipService relationshipService;
 	@Autowired
 	MessageService messageService;
-	@Autowired
+/*	@Autowired
+	UserService userService;*/
+	@Resource
 	UserService userService;
 	@Autowired
 	ManagerService managerService;

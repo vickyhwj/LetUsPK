@@ -13,7 +13,7 @@ import com.xiangqiwebsocket.WebSocketXiangqi;
 public class WatchController extends BaseController{
 	@RequestMapping("/WatchXiangqi")
 	public void WatchXiangqi(String key,HttpServletResponse response) throws IOException{
-		key=key.replaceAll("@", " ");
+		key=key.replaceAll("-", " ");
 		if(!WebSocketXiangqi.gameMap.containsKey(key))
 			response.getWriter().print("no");
 		else response.getWriter().print("yes");

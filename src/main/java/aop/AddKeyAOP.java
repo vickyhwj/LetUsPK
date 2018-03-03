@@ -43,7 +43,7 @@ public class AddKeyAOP implements MethodInterceptor{
 		MongoTemplate mongoTemplate=(MongoTemplate) ContextLoader.getCurrentWebApplicationContext().getBean("mongoTemplate");
 		WebSocketXiangqi socket=WebSocketXiangqi.socketMap.get(args[1]);
 		String key=socket.getGameMapKey();
-		mongoTemplate.insert(new JSONObject().element("key", key.replaceAll(" ", "@")),"xiangqigamekey");
+		mongoTemplate.insert(new JSONObject().element("key", key.replaceAll(" ", "-")),"xiangqigamekey");
 
 		
 		System.out.println(joinPoint.getMethod().getName()+"timeuse:"+(System.currentTimeMillis()-start));

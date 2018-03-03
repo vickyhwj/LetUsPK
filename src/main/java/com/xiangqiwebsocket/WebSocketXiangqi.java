@@ -139,7 +139,7 @@ public class WebSocketXiangqi extends GameWebSocket {
 			// mongoTemplate.insert(gameState);
 			mongoTemplate
 					.remove(new Query(Criteria.where("key").is(
-							gameMapKey.replaceAll(" ", "@"))), "xiangqigamekey");
+							gameMapKey.replaceAll(" ", "-"))), "xiangqigamekey");
 			gameMap.remove(gameMapKey);
 			if (gameState.getA().equals(username)) {
 				try {
@@ -214,7 +214,7 @@ public class WebSocketXiangqi extends GameWebSocket {
 				gameMap.put(key, gameState);
 				mongoTemplate.insert(
 						new JSONObject().element("key",
-								key.replaceAll(" ", "@")), "xiangqigamekey");
+								key.replaceAll(" ", "-")), "xiangqigamekey");
 				WebSocketXiangqi w1 = null, w2 = null;
 				try {
 					w1 = socketMap.get(A);

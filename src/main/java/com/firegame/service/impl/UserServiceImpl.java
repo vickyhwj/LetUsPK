@@ -25,7 +25,7 @@ import com.firegame.dao.MessageDao;
 import com.firegame.dao.UserDao;
 import com.firegame.service.UserService;
 import com.xiangqiwebsocket.WebSocketXiangqi;
-@Service("userService")
+//@Service("userService")
 public class UserServiceImpl extends BaseServiceImpl implements UserService {
 	
 	@Override
@@ -84,6 +84,7 @@ public class UserServiceImpl extends BaseServiceImpl implements UserService {
 		user.setPassword(password);
 		try{
 			userDao.insert(user);
+			
 		}catch(Exception e){
 			return false;
 		}

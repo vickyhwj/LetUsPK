@@ -15,6 +15,13 @@
 		<spring.security.version>3.2.3.RELEASE</spring.security.version>
 	</properties>
 	<dependencies>
+	<!-- https://mvnrepository.com/artifact/javax.mail/mail -->
+<dependency>
+    <groupId>javax.mail</groupId>
+    <artifactId>mail</artifactId>
+    <version>1.4</version>
+</dependency>
+	
 
 		<dependency>
 			<groupId>junit</groupId>

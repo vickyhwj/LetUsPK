@@ -38,7 +38,7 @@ import tool.AuthenticationUtil;
 import tool.BQueue;
 
 
-@Controller
+//@Controller
 public class UserController extends BaseController{
 	@Autowired
 	SessionRegistry sessionRegistry;
